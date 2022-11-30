@@ -13,6 +13,7 @@ namespace Cooler_King
         private SpriteBatch _spriteBatch;
 
         Paddle paddle;
+        Ball ball;
 
         Rectangle screenSize;
 
@@ -38,6 +39,7 @@ namespace Cooler_King
 
             //loads the paddle texture
             paddle = new Paddle(Content.Load <Texture2D>("paddle (2)"), screenSize.Width/2 - 35 , 450);
+            ball = new Ball(Content.Load <Texture2D>("ball"), 100, 100);
         }
 
         protected override void Update(GameTime gameTime)
@@ -47,6 +49,7 @@ namespace Cooler_King
                 Exit();
 
             paddle.UpdateMe(screenSize.Width);
+            ball.UpdateMe(screenSize.Width);
 
             base.Update(gameTime);
         }
@@ -57,6 +60,7 @@ namespace Cooler_King
 
             _spriteBatch.Begin();
             paddle.DrawMe(_spriteBatch);
+            ball.DrawMe(_spriteBatch);
             _spriteBatch.End();
 
             base.Draw(gameTime);
