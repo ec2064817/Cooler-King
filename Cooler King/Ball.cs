@@ -11,11 +11,12 @@ namespace Cooler_King
 {
     internal class Ball
     {
-        Vector2 pos;
+        Vector2 pos,oldPos;
         public Rectangle Rect;
+        public Vector2 Speed;
 
         Vector2 motion;
-        float ballSpeed = 4;
+       
 
         Texture2D tex;
 
@@ -23,25 +24,60 @@ namespace Cooler_King
 
 
         //Constructer
-        public Ball(Texture2D tex, int xPos, int yPos)
+        public Ball(Texture2D tex, Vector2 posi)
         {
             this.tex = tex;
 
-            motion = new Vector2(1, -1);
+            oldPos = pos = posi;
 
-            Rect = new Rectangle(xPos, yPos, tex.Width / size, tex.Height / size);
+            motion = new Vector2(1, -1);
+            Speed = new Vector2(3, 3);
+
+            Rect = new Rectangle((int) posi.X, (int) pos.Y, tex.Width / size, tex.Height / size);
+        }
+
+        public void MoveBack()
+        {
+            pos = oldPos;
+            Rect.Location = pos.ToPoint();
+        }
+
+        public void BounceX()
+        {
+            Speed.X = -Speed.X;
+        }
+
+        public void BounceY()
+        {
+            Speed.Y = -Speed.Y;
         }
 
         //Update
-        public void UpdateMe(int screenWidth)
+        public void UpdateMe(int screenHeight,int screenWidth)
         {
+            oldPos = pos;
 
-            pos += motion * ballSpeed;
+            if ((pos.X < 0) || (pos.X > screenWidth - Rect.Width))
+            {
+                // Flip the X (left/right) direction of travel
+                BounceX();
+            }
+
+            if ((pos.Y < 0) || (pos.Y > screenHeight - Rect.Height))
+            {
+                // Flip the Y (up/down) direction of travel
+                BounceY();
+            }
+
+            pos += Speed;
+
+            Rect.Location = pos.ToPoint();
+
 
             //Makes it so the paddle can not leave the screen
-            if (Rect.X > screenWidth - tex.Width)
+            if (Rect.X > screenWidth)
             {
-                Rect.X = screenWidth - tex.Width;
+                Rect.X = screenWidth;
             }
 
             if (Rect.X < 0)
@@ -49,12 +85,6 @@ namespace Cooler_King
                 Rect.X = 0;
             }
         }
-
-
-
-
-
-
 
         public void DrawMe(SpriteBatch sb)
         {

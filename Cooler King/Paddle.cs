@@ -10,7 +10,7 @@ namespace Cooler_King
 {
     internal class Paddle
     {
-        Vector2 pos;
+        Vector2 pos, oldPos;
         public Rectangle Rect;
         
 
@@ -20,17 +20,28 @@ namespace Cooler_King
         
 
         //Constructer
-        public Paddle(Texture2D tex, int xPos, int yPos)
+        public Paddle(Texture2D tex, Vector2 posi)
         {
             this.tex = tex;
 
-            Rect = new Rectangle(xPos, yPos, tex.Width, tex.Height);
+            oldPos = pos = posi;
+
+            Rect = new Rectangle((int)posi.X, (int)posi.Y, tex.Width, tex.Height);
         }
+
+        //public void MoveBack()
+        //{
+        //    pos = oldPos;
+        //    Rect.Location = pos.ToPoint();
+        //}
 
         //Update
         public void UpdateMe(int screenWidth)
         {
+            //oldPos = pos;
+
             
+
             //Setting kb as the keyboard get state function
             kb = Keyboard.GetState();
 
@@ -55,13 +66,9 @@ namespace Cooler_King
             {
                 Rect.X = 0;
             }
+
+            //Rect.Location = pos.ToPoint();
         }
-
-
-
-
-        
-        
 
         public void DrawMe(SpriteBatch sb)
         {

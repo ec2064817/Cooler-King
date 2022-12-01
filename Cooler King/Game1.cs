@@ -17,13 +17,20 @@ namespace Cooler_King
 
         Rectangle screenSize;
 
+        int bricksWide = 10;
+        int bricksHigh = 5;
+        Brick[,] bricks;
+
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            
+            _graphics.PreferredBackBufferWidth = 750;
+            _graphics.PreferredBackBufferHeight = 600;
+
         }
 
         protected override void Initialize()
@@ -38,8 +45,8 @@ namespace Cooler_King
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             //loads the paddle texture
-            paddle = new Paddle(Content.Load <Texture2D>("paddle (2)"), screenSize.Width/2 - 35 , 450);
-            ball = new Ball(Content.Load <Texture2D>("ball"), 100, 100);
+            paddle = new Paddle(Content.Load <Texture2D>("paddle (2)"), new Vector2 (screenSize.Width/2 - 35 , 450));
+            ball = new Ball(Content.Load <Texture2D>("ball"),new Vector2(100, 100));
         }
 
         protected override void Update(GameTime gameTime)
@@ -49,7 +56,32 @@ namespace Cooler_King
                 Exit();
 
             paddle.UpdateMe(screenSize.Width);
-            ball.UpdateMe(screenSize.Width);
+            ball.UpdateMe(screenSize.Height, screenSize.Width);
+
+            // Check for a collision between the logos
+            if (ball.Rect.Intersects(paddle.Rect))
+            {
+                // get the overlap rectangle
+                var overlap = Rectangle.Intersect(ball.Rect, paddle.Rect);
+
+                // if the overlap rect width > height
+                if (overlap.Width > overlap.Height)
+                {
+                    // flip the y velocity
+                    ball.BounceY();
+                    
+                }
+                else
+                {
+                    // flip the x velocity
+                    ball.BounceX();
+                    
+                }
+                // endif
+                ball.MoveBack();
+                //paddle.MoveBack();
+                
+            }
 
             base.Update(gameTime);
         }
