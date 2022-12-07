@@ -20,6 +20,7 @@ namespace Cooler_King
         int bricksWide = 10;
         int bricksHigh = 5;
         Brick[,] bricks;
+        Texture2D brickImage;
 
 
         public Game1()
@@ -37,6 +38,8 @@ namespace Cooler_King
         {
             screenSize = GraphicsDevice.Viewport.Bounds;
 
+
+            
             base.Initialize();
         }
 
@@ -47,6 +50,43 @@ namespace Cooler_King
             //loads the paddle texture
             paddle = new Paddle(Content.Load <Texture2D>("paddle (2)"), new Vector2 (screenSize.Width/2 - 35 , 450));
             ball = new Ball(Content.Load <Texture2D>("ball"),new Vector2(100, 100));
+            brickImage = Content.Load<Texture2D>("Brick");
+
+            StartGame();
+        }
+
+        protected void StartGame()
+        {
+            bricks = new Brick[bricksWide, bricksHigh];
+
+            for (int y = 0; y < bricksHigh; y++)
+            {
+                Color tint = Color.White;
+
+                switch (y)
+                {
+                    case 0:
+                        tint = Color.Blue;
+                        break;
+                    case 1:
+                        tint = Color.Green;
+                        break;
+                    case 2:
+                        tint = Color.Red;
+                        break;
+                    case 3:
+                        tint = Color.Yellow;
+                        break;
+                    case 4:
+                        tint = Color.Purple;
+                        break;
+                }
+                for (int x = 0; x < bricksWide; x++)
+                {
+                    bricks[x, y] = new Brick(brickImage, new Rectangle(x * brickImage.Width, y * brickImage.Height, brickImage.Width, brickImage.Height), tint);
+                }
+            }
+            
         }
 
         protected override void Update(GameTime gameTime)
@@ -91,6 +131,12 @@ namespace Cooler_King
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _spriteBatch.Begin();
+
+            foreach (Brick brick in bricks)
+            {
+                brick.DrawMe(_spriteBatch);
+            }
+
             paddle.DrawMe(_spriteBatch);
             ball.DrawMe(_spriteBatch);
             _spriteBatch.End();

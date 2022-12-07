@@ -14,6 +14,7 @@ namespace Cooler_King
         Color tint;
         bool alive;
         Texture2D tex;
+        public Rectangle Rect;
 
         //Constructer
         public Brick(Texture2D tex, Rectangle location, Color tint)
@@ -21,6 +22,9 @@ namespace Cooler_King
             this.tex = tex;
             this.location = location;
             this.tint = tint;
+            this.alive = true;
+
+            //Rect = new Rectangle((int)posi.X, (int)posi.Y, tex.Width, tex.Height);
 
         }
 
@@ -39,7 +43,7 @@ namespace Cooler_King
 
         public void DrawMe(SpriteBatch sb)
         {
-            if (alive)
+            //if (alive)
             sb.Draw(tex, location, tint);
         }
     }
