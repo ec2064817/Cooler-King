@@ -49,7 +49,7 @@ namespace Cooler_King
 
             //loads the paddle texture
             paddle = new Paddle(Content.Load <Texture2D>("paddle (2)"), new Vector2 (screenSize.Width/2 - 35 , 450));
-            ball = new Ball(Content.Load <Texture2D>("ball"),new Vector2(100, 100));
+            ball = new Ball(Content.Load <Texture2D>("ball"),new Vector2(200, 200));
             brickImage = Content.Load<Texture2D>("Brick");
 
             StartGame();
@@ -99,30 +99,66 @@ namespace Cooler_King
             ball.UpdateMe(screenSize.Height, screenSize.Width);
 
             // Check for a collision between the logos
-            if (ball.Rect.Intersects(paddle.Rect))
-            {
-                // get the overlap rectangle
-                var overlap = Rectangle.Intersect(ball.Rect, paddle.Rect);
 
-                // if the overlap rect width > height
-                if (overlap.Width > overlap.Height)
-                {
-                    // flip the y velocity
-                    ball.BounceY();
-                    
-                }
-                else
-                {
-                    // flip the x velocity
-                    ball.BounceX();
-                    
-                }
-                // endif
-                ball.MoveBack();
-                //paddle.MoveBack();
-                
-            }
 
+            
+
+
+                if (ball.Rect.Intersects(paddle.Rect))
+                {
+                    // get the overlap rectangle
+                    var overlap = Rectangle.Intersect(ball.Rect, paddle.Rect);
+
+
+                    // if the overlap rect width > height
+                    if (overlap.Width > overlap.Height)
+                    {
+                        // flip the y velocity
+                        ball.BounceY();
+
+                    }
+                    else
+                    {
+                        // flip the x velocity
+                        ball.BounceX();
+
+                    }
+                    // endif
+                    ball.MoveBack();
+                   
+
+                }
+
+                foreach (Brick brick in bricks)
+                {
+                    if (ball.Rect.Intersects(brick.Rect) && (brick.alive == true))
+                    {
+                        // get the overlap rectangle
+                        var overlap = Rectangle.Intersect(ball.Rect, brick.Rect);
+                        brick.alive = false;
+
+                        // if the overlap rect width > height
+                        if (overlap.Width > overlap.Height)
+                        {
+                            // flip the y velocity
+                            ball.BounceY();
+
+                        }
+                        else
+                        {
+                            // flip the x velocity
+                            ball.BounceX();
+
+                        }
+                        // endif
+                        ball.MoveBack();
+
+
+                    }
+                }
+
+            
+            
             base.Update(gameTime);
         }
 
