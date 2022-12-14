@@ -17,6 +17,9 @@ namespace Cooler_King
 
         Rectangle screenSize;
 
+        SpriteFont ScoreFont;
+        float score;
+
         int bricksWide = 10;
         int bricksHigh = 5;
         Brick[,] bricks;
@@ -29,7 +32,7 @@ namespace Cooler_King
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            _graphics.PreferredBackBufferWidth = 750;
+            _graphics.PreferredBackBufferWidth = 730;
             _graphics.PreferredBackBufferHeight = 600;
 
         }
@@ -38,7 +41,7 @@ namespace Cooler_King
         {
             screenSize = GraphicsDevice.Viewport.Bounds;
 
-
+            score = 0;
             
             base.Initialize();
         }
@@ -51,6 +54,7 @@ namespace Cooler_King
             paddle = new Paddle(Content.Load <Texture2D>("paddle (2)"), new Vector2 (screenSize.Width/2 - 35 , 450));
             ball = new Ball(Content.Load <Texture2D>("ball"),new Vector2(200, 200));
             brickImage = Content.Load<Texture2D>("Brick");
+            ScoreFont = Content.Load<SpriteFont>("ScoreText");
 
             StartGame();
         }
@@ -108,7 +112,7 @@ namespace Cooler_King
                 {
                     // get the overlap rectangle
                     var overlap = Rectangle.Intersect(ball.Rect, paddle.Rect);
-
+                
 
                     // if the overlap rect width > height
                     if (overlap.Width > overlap.Height)
@@ -136,6 +140,7 @@ namespace Cooler_King
                         // get the overlap rectangle
                         var overlap = Rectangle.Intersect(ball.Rect, brick.Rect);
                         brick.alive = false;
+                        score--;
 
                         // if the overlap rect width > height
                         if (overlap.Width > overlap.Height)
@@ -157,7 +162,12 @@ namespace Cooler_King
                     }
                 }
 
-            
+            score += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (score >= 50)
+            {
+                Exit();
+            }
             
             base.Update(gameTime);
         }
@@ -175,6 +185,7 @@ namespace Cooler_King
 
             paddle.DrawMe(_spriteBatch);
             ball.DrawMe(_spriteBatch);
+            _spriteBatch.DrawString(ScoreFont, "Score: " + score, new Vector2(0, 560), Color.White);
             _spriteBatch.End();
 
             base.Draw(gameTime);
