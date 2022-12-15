@@ -18,13 +18,15 @@ namespace Cooler_King
         Rectangle screenSize;
 
         SpriteFont ScoreFont;
-        float score;
+        float frustration;
+        int score;
 
         int bricksWide = 10;
         int bricksHigh = 5;
         Brick[,] bricks;
         Texture2D brickImage;
 
+        public static int level = 0;
 
         public Game1()
         {
@@ -41,7 +43,8 @@ namespace Cooler_King
         {
             screenSize = GraphicsDevice.Viewport.Bounds;
 
-            score = 0;
+            frustration = 0;
+            score = 74;
             
             base.Initialize();
         }
@@ -87,12 +90,52 @@ namespace Cooler_King
                 }
                 for (int x = 0; x < bricksWide; x++)
                 {
+
                     bricks[x, y] = new Brick(brickImage, new Rectangle(x * brickImage.Width, y * brickImage.Height, brickImage.Width, brickImage.Height), tint);
+
+                    //bricks[x, y] = new Brick(brickImage, new Rectangle(x * brickImage.Width, (int)(MathF.Sin(x * 0.05f) * y * brickImage.Height), brickImage.Width, brickImage.Height), tint);
+
+
+
+
+
                 }
             }
             
         }
 
+        public void ProceedLevel()
+        {
+            frustration = frustration / 2.0f;
+            for (int y = 0; y < bricksHigh; y++)
+            {
+                for (int x = 0; x < bricksWide; x++)
+                {
+                    switch (level)
+                    {
+                        case 1:
+                            
+                            bricks[x, y].alive = true;
+                            if (x % 2 == 0)
+                            {
+                                bricks[x, y].alive = false;
+                                
+                            }
+                            
+                            break;
+
+                        case 2:
+                            bricks[x, y].alive = false;
+                            if (x > 0 && y > 0 && x < bricksWide - 1 && y < bricksHigh - 1)
+                            {
+                                bricks[x, y].alive = true;
+
+                            }
+                            break;
+                    }
+                }
+            }
+        }
         protected override void Update(GameTime gameTime)
         {
             //Allows the game to exit
@@ -104,8 +147,11 @@ namespace Cooler_King
 
             // Check for a collision between the logos
 
-
-            
+            //THIS DOESN'T WORK
+            if (ball.pos.Y >= 603 - ball.Rect.Height)
+            {
+                frustration++;
+            }
 
 
                 if (ball.Rect.Intersects(paddle.Rect))
@@ -133,14 +179,19 @@ namespace Cooler_King
 
                 }
 
-                foreach (Brick brick in bricks)
+            for (int i = 0; i < bricks.GetLength(0); i++)
+            {
+                for (int j = 0; j < bricks.GetLength(1); j++)
                 {
+                    var brick = bricks[i, j];
+
                     if (ball.Rect.Intersects(brick.Rect) && (brick.alive == true))
                     {
                         // get the overlap rectangle
                         var overlap = Rectangle.Intersect(ball.Rect, brick.Rect);
                         brick.alive = false;
-                        score--;
+                        frustration--;
+                        score++;
 
                         // if the overlap rect width > height
                         if (overlap.Width > overlap.Height)
@@ -161,14 +212,26 @@ namespace Cooler_King
 
                     }
                 }
-
-            score += (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (score >= 50)
-            {
-                Exit();
             }
-            
+
+            frustration += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+
+            if (level == 0 && score > 50)
+            {
+                level++;
+                ProceedLevel();
+            }
+            if (level == 1 && score > 75)
+            {
+                level++;
+                ProceedLevel();
+            }
+            //if (score >= 50)
+            //{
+            //    Exit();
+            //}
+
             base.Update(gameTime);
         }
 
@@ -185,7 +248,7 @@ namespace Cooler_King
 
             paddle.DrawMe(_spriteBatch);
             ball.DrawMe(_spriteBatch);
-            _spriteBatch.DrawString(ScoreFont, "Score: " + score, new Vector2(0, 560), Color.White);
+            _spriteBatch.DrawString(ScoreFont, "Frustration: " + frustration, new Vector2(0, 560), Color.White);
             _spriteBatch.End();
 
             base.Draw(gameTime);

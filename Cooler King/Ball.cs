@@ -11,7 +11,7 @@ namespace Cooler_King
 {
     internal class Ball
     {
-        Vector2 pos,oldPos;
+        public Vector2 pos,oldPos;
         public Rectangle Rect;
         public Vector2 Speed;
 

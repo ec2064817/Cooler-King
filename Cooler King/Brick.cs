@@ -24,6 +24,7 @@ namespace Cooler_King
                 rect.Y = location.Y;
                 return rect;
             }
+            
         }
 
         //Constructer
