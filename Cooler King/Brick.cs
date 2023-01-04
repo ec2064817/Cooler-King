@@ -20,8 +20,11 @@ namespace Cooler_King
         {
             get
             {
+                //gets location and sets it as rect
                 rect.X = location.X;
                 rect.Y = location.Y;
+
+                //returns it into rect var
                 return rect;
             }
             
@@ -35,29 +38,15 @@ namespace Cooler_King
             this.tint = tint;
             this.alive = true;
 
+            //sets rect position and texture
             rect = new Rectangle(0, 0, tex.Width, tex.Height);
-            //Rect = new Rectangle((int)posi.X, (int)posi.Y, tex.Width, tex.Height);
-
-        }
-
-
-        
-
-        public void CheckCollision(Ball ball)
-        {
-
-
-        }
-
-        //Update
-        public void UpdateMe()
-        {
             
-           
+
         }
 
         public void DrawMe(SpriteBatch sb)
         {
+            //if the brick has not been hit by the ball it draws the brick
             if (alive)
             sb.Draw(tex, location, tint);
         }

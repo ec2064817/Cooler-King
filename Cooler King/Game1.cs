@@ -41,10 +41,12 @@ namespace Cooler_King
 
         protected override void Initialize()
         {
+            //Sets screenSize var as the screen bounds
             screenSize = GraphicsDevice.Viewport.Bounds;
 
+            //Sets both frustration and score to zero
             frustration = 0;
-            score = 74;
+            score = 0 ;
             
             base.Initialize();
         }
@@ -53,52 +55,61 @@ namespace Cooler_King
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            //loads the paddle texture
+            //loads the paddle texture and sets it position
             paddle = new Paddle(Content.Load <Texture2D>("paddle (2)"), new Vector2 (screenSize.Width/2 - 35 , 450));
+
+            //loads the ball texture and sets its position
             ball = new Ball(Content.Load <Texture2D>("ball"),new Vector2(200, 200));
+
+            //loads the bricks texture
             brickImage = Content.Load<Texture2D>("Brick");
+
+            //loads the score font
             ScoreFont = Content.Load<SpriteFont>("ScoreText");
 
+            //initializes the start game function
             StartGame();
         }
 
         protected void StartGame()
         {
+            //sets the brick var as each brick
             bricks = new Brick[bricksWide, bricksHigh];
 
+            //loops through each brick in the brickHigh var
             for (int y = 0; y < bricksHigh; y++)
             {
+                //makes each bricks tint white
                 Color tint = Color.White;
 
                 switch (y)
                 {
+                    //makes the first line of bricks blue
                     case 0:
                         tint = Color.Blue;
                         break;
+                    //makes the second line of bricks green
                     case 1:
                         tint = Color.Green;
                         break;
+                    //makes the third line of bricks red
                     case 2:
                         tint = Color.Red;
                         break;
+                    //makes the forth line of bricks yellow
                     case 3:
                         tint = Color.Yellow;
                         break;
+                    //makes the fifth line of bricks purple
                     case 4:
                         tint = Color.Purple;
                         break;
                 }
+                //loops through brick in the brickWide var
                 for (int x = 0; x < bricksWide; x++)
                 {
-
+                    //sets each brick with the brick image, a collition rectangle and a color
                     bricks[x, y] = new Brick(brickImage, new Rectangle(x * brickImage.Width, y * brickImage.Height, brickImage.Width, brickImage.Height), tint);
-
-                    //bricks[x, y] = new Brick(brickImage, new Rectangle(x * brickImage.Width, (int)(MathF.Sin(x * 0.05f) * y * brickImage.Height), brickImage.Width, brickImage.Height), tint);
-
-
-
-
-
                 }
             }
             
@@ -106,13 +117,18 @@ namespace Cooler_King
 
         public void ProceedLevel()
         {
+            //halfs your frustration
             frustration = frustration / 2.0f;
+            
+            //loops through each brick in the bricksHigh var
             for (int y = 0; y < bricksHigh; y++)
             {
+                //loops through each brick in the bricksWide var
                 for (int x = 0; x < bricksWide; x++)
                 {
                     switch (level)
                     {
+                        //sets level two
                         case 1:
                             
                             bricks[x, y].alive = true;
@@ -124,6 +140,7 @@ namespace Cooler_King
                             
                             break;
 
+                        //sets level three
                         case 2:
                             bricks[x, y].alive = false;
                             if (x > 0 && y > 0 && x < bricksWide - 1 && y < bricksHigh - 1)
@@ -142,43 +159,42 @@ namespace Cooler_King
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            //updates both the paddle and ball class and gives them screensizes
             paddle.UpdateMe(screenSize.Width);
             ball.UpdateMe(screenSize.Height, screenSize.Width);
 
-            // Check for a collision between the logos
-
-            //THIS DOESN'T WORK
+            //adds a point of frustraiton when the ball hits the bottom of the screen
             if (ball.pos.Y >= 603 - ball.Rect.Height)
             {
                 frustration++;
             }
 
 
-                if (ball.Rect.Intersects(paddle.Rect))
-                {
-                    // get the overlap rectangle
-                    var overlap = Rectangle.Intersect(ball.Rect, paddle.Rect);
+            if (ball.Rect.Intersects(paddle.Rect))
+            {
+                // get the overlap rectangle
+                var overlap = Rectangle.Intersect(ball.Rect, paddle.Rect);
                 
 
-                    // if the overlap rect width > height
-                    if (overlap.Width > overlap.Height)
-                    {
-                        // flip the y velocity
-                        ball.BounceY();
-
-                    }
-                    else
-                    {
-                        // flip the x velocity
-                        ball.BounceX();
-
-                    }
-                    // endif
-                    ball.MoveBack();
-                   
+                // if the overlap rect width > height
+                if (overlap.Width > overlap.Height)
+                {
+                  // flip the y velocity
+                  ball.BounceY();
 
                 }
+                else
+                {
+                  // flip the x velocity
+                  ball.BounceX();
 
+                }
+               
+                   
+
+            }
+
+            //loops through each brick
             for (int i = 0; i < bricks.GetLength(0); i++)
             {
                 for (int j = 0; j < bricks.GetLength(1); j++)
@@ -206,7 +222,7 @@ namespace Cooler_King
                             ball.BounceX();
 
                         }
-                        // endif
+                        // moves the ball back one pixel so it doesn't get stuck in a brick
                         ball.MoveBack();
 
 
@@ -214,9 +230,10 @@ namespace Cooler_King
                 }
             }
 
+            //add frustration every second that the game does on
             frustration += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-
+            //changes level if you have destroyed every brick in the level
             if (level == 0 && score > 50)
             {
                 level++;
@@ -227,10 +244,7 @@ namespace Cooler_King
                 level++;
                 ProceedLevel();
             }
-            //if (score >= 50)
-            //{
-            //    Exit();
-            //}
+            
 
             base.Update(gameTime);
         }
@@ -241,13 +255,17 @@ namespace Cooler_King
 
             _spriteBatch.Begin();
 
+            //draws each brick
             foreach (Brick brick in bricks)
             {
                 brick.DrawMe(_spriteBatch);
             }
 
+            //draws the paddle and ball
             paddle.DrawMe(_spriteBatch);
             ball.DrawMe(_spriteBatch);
+
+            //draws the font with the given text and the position
             _spriteBatch.DrawString(ScoreFont, "Frustration: " + frustration, new Vector2(0, 560), Color.White);
             _spriteBatch.End();
 
