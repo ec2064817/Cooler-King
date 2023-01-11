@@ -16,7 +16,8 @@ namespace Cooler_King
         public Vector2 Speed;
 
         Vector2 motion;
-       
+
+        public bool alive;
 
         Texture2D tex;
 
@@ -27,6 +28,7 @@ namespace Cooler_King
         public Ball(Texture2D tex, Vector2 posi)
         {
             this.tex = tex;
+            this.alive = true;
 
             //sets the old position as the current position and stores it in the 'posi' var
             oldPos = pos = posi;
@@ -101,7 +103,8 @@ namespace Cooler_King
         public void DrawMe(SpriteBatch sb)
         {
             //draws the ball at the predefined location with the texture
-            sb.Draw(tex, Rect, Color.White);
+            if (alive)
+                sb.Draw(tex, Rect, Color.White);
         }
     }
 }

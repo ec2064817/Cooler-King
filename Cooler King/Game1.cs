@@ -27,6 +27,8 @@ namespace Cooler_King
         Paddle paddle;
         Ball ball;
 
+        bool gameOver;
+
         Rectangle screenSize;
 
         SpriteFont ScoreFont;
@@ -82,7 +84,7 @@ namespace Cooler_King
             //loads the score font
             ScoreFont = Content.Load<SpriteFont>("ScoreText");
 
-            
+            StartGame();
         }
 
         protected void StartGame()
@@ -127,41 +129,7 @@ namespace Cooler_King
                 }
             }
 
-            //loops through each brick
-            for (int i = 0; i < bricks.GetLength(0); i++)
-            {
-                for (int j = 0; j < bricks.GetLength(1); j++)
-                {
-                    var brick = bricks[i, j];
-
-                    if (ball.Rect.Intersects(brick.Rect) && (brick.alive == true))
-                    {
-                        // get the overlap rectangle
-                        var overlap = Rectangle.Intersect(ball.Rect, brick.Rect);
-                        brick.alive = false;
-                        frustration--;
-                        score++;
-
-                        // if the overlap rect width > height
-                        if (overlap.Width > overlap.Height)
-                        {
-                            // flip the y velocity
-                            ball.BounceY();
-
-                        }
-                        else
-                        {
-                            // flip the x velocity
-                            ball.BounceX();
-
-                        }
-                        // moves the ball back one pixel so it doesn't get stuck in a brick
-                        ball.MoveBack();
-
-
-                    }
-                }
-            }
+           
         }
 
         public void ProceedLevel()
@@ -215,9 +183,34 @@ namespace Cooler_King
                 if (cKB.IsKeyDown(Keys.Space) && oKB.IsKeyUp(Keys.Space))
                 {
                     CurrentGameState = GameState.Playing;
+                    //add frustration every second that the game does on
+                    frustration += (float)gameTime.ElapsedGameTime.TotalSeconds * (level+1);
                     //initializes the start game function
-                    StartGame();
+
                 }
+            }
+
+            if (frustration >= 200)
+            {
+                gameOver = true;
+            }
+            void PlayingUpdate(KeyboardState cKB, KeyboardState oKB)
+            {
+
+                //add frustration every second that the game does on
+                frustration += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (gameOver == true || cKB.IsKeyDown(Keys.Space) && oKB.IsKeyUp(Keys.Space))
+                {
+                    CurrentGameState = GameState.GameOver;
+                }
+                
+            }
+
+            void GameOverUpdate(KeyboardState cKB, KeyboardState oKB)
+            {
+
+                ball.alive = false;
+
             }
 
             //Check to see if the game states need to be updated
@@ -226,19 +219,21 @@ namespace Cooler_King
                 case GameState.Attract:
                     AttractUpdate(currKeyb, oldKeyb);
                     break;
-                //case GameState.Playing:
-                //    PlayingUpdate(currKeyb, oldKeyb);
-                //    break;
-                //case GameState.GameOver:
-                //    GameOverUpdate(currKeyb, oldKeyb);
-                //    break;
+                case GameState.Playing:
+                    PlayingUpdate(currKeyb, oldKeyb);
+                    break;
+                case GameState.GameOver:
+                    GameOverUpdate(currKeyb, oldKeyb);
+                    break;
             }
 
             oldKeyb = currKeyb;
 
             //updates both the paddle and ball class and gives them screensizes
             paddle.UpdateMe(screenSize.Width);
-            ball.UpdateMe(screenSize.Height, screenSize.Width);
+            //ball
+            if(ball.alive)
+                ball.UpdateMe(screenSize.Height, screenSize.Width);
 
             //adds a point of frustraiton when the ball hits the bottom of the screen
             if (ball.pos.Y >= 603 - ball.Rect.Height)
@@ -271,54 +266,55 @@ namespace Cooler_King
 
             }
 
-            ////loops through each brick
-            //for (int i = 0; i < bricks.GetLength(0); i++)
-            //{
-            //    for (int j = 0; j < bricks.GetLength(1); j++)
-            //    {
-            //        var brick = bricks[i, j];
+            //loops through each brick
+            for (int i = 0; i < bricks.GetLength(0); i++)
+            {
+                for (int j = 0; j < bricks.GetLength(1); j++)
+                {
+                    var brick = bricks[i, j];
 
-            //        if (ball.Rect.Intersects(brick.Rect) && (brick.alive == true))
-            //        {
-            //            // get the overlap rectangle
-            //            var overlap = Rectangle.Intersect(ball.Rect, brick.Rect);
-            //            brick.alive = false;
-            //            frustration--;
-            //            score++;
+                    if (ball.Rect.Intersects(brick.Rect) && (brick.alive == true))
+                    {
+                        // get the overlap rectangle
+                        var overlap = Rectangle.Intersect(ball.Rect, brick.Rect);
+                        brick.alive = false;
+                        frustration--;
+                        score++;
 
-            //            // if the overlap rect width > height
-            //            if (overlap.Width > overlap.Height)
-            //            {
-            //                // flip the y velocity
-            //                ball.BounceY();
+                        // if the overlap rect width > height
+                        if (overlap.Width > overlap.Height)
+                        {
+                            // flip the y velocity
+                            ball.BounceY();
 
-            //            }
-            //            else
-            //            {
-            //                // flip the x velocity
-            //                ball.BounceX();
+                        }
+                        else
+                        {
+                            // flip the x velocity
+                            ball.BounceX();
 
-            //            }
-            //            // moves the ball back one pixel so it doesn't get stuck in a brick
-            //            ball.MoveBack();
+                        }
+                        // moves the ball back one pixel so it doesn't get stuck in a brick
+                        ball.MoveBack();
 
 
-            //        }
-            //    }
-            //}
+                    }
+                }
+            }
 
-            //add frustration every second that the game does on
-            frustration += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            
 
-            //changes level if you have destroyed every brick in the level
-            if (level == 0 && score > 50)
+            //changes level if you have destroyed every brick in each level
+            if (level == 0 && score >= 50)
             {
                 level++;
+                ball.Speed = new Vector2(4, 4);
                 ProceedLevel();
             }
-            if (level == 1 && score > 75)
+            if (level == 1 && score >= 75)
             {
                 level++;
+                ball.Speed = new Vector2(5, 5);
                 ProceedLevel();
             }
             
@@ -337,14 +333,16 @@ namespace Cooler_King
 
                 
                 _spriteBatch.Begin();
-                _spriteBatch.DrawString(ScoreFont, "I am Attract Mode", Vector2.Zero, Color.White);
+                _spriteBatch.DrawString(ScoreFont, "Welcome to TOTALLY NOT BREAKOUT", new Vector2(100, 100), Color.White);
+                _spriteBatch.DrawString(ScoreFont, "Make sure not to get to 200 frustration!", new Vector2(100, 200), Color.White);
+                _spriteBatch.DrawString(ScoreFont, "Press Space to start!", new Vector2(225, 300), Color.White);
                 _spriteBatch.End();
             }
 
             //Sets what is shown in the Playing state
             void PlayingDraw()
             {
-                GraphicsDevice.Clear(Color.Yellow);
+                GraphicsDevice.Clear(Color.Blue);
                 _spriteBatch.Begin();
 
                 //draws each brick
@@ -363,6 +361,17 @@ namespace Cooler_King
                 _spriteBatch.End();
             }
 
+            void GameOverDraw()
+            {
+                GraphicsDevice.Clear(Color.Blue);
+                _spriteBatch.Begin();
+
+                //draws the font with the given text and the position
+                _spriteBatch.DrawString(ScoreFont, "You DIED! Your score was: " + score, new Vector2(0, 560), Color.White);
+
+                _spriteBatch.End();
+            }
+
             switch (CurrentGameState)
             {
                 case GameState.Attract:
@@ -371,14 +380,19 @@ namespace Cooler_King
                 case GameState.Playing:
                     PlayingDraw();
                     break;
-                //case GameState.GameOver:
-                //    GameOverDraw();
-                //    break;
+                case GameState.GameOver:
+                    GameOverDraw();
+                    break;
             }
 
             _spriteBatch.Begin();
 
+
            
+
+            
+            _spriteBatch.End();
+
 
             base.Draw(gameTime);
         }
