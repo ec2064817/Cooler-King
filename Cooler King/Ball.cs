@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -63,7 +64,7 @@ namespace Cooler_King
         }
 
         //Update
-        public void UpdateMe(int screenHeight,int screenWidth)
+        public void UpdateMe(int screenHeight,int screenWidth, SoundEffect wallHit, SoundEffect brickHit)
         {
             //sets the 'oldPos' as the 'pos' var
             oldPos = pos;
@@ -73,6 +74,7 @@ namespace Cooler_King
             {
                 // Flip the X (left/right) direction of travel
                 BounceX();
+                wallHit.Play();
             }
 
             //if the ball hits the top or bottom of the screen
@@ -80,6 +82,7 @@ namespace Cooler_King
             {
                 // Flip the Y (up/down) direction of travel
                 BounceY();
+                wallHit.Play();
             }
 
             
