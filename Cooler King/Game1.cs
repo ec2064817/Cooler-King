@@ -58,6 +58,7 @@ namespace Cooler_King
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
+            //sets the screen size to 730 by 600
             _graphics.PreferredBackBufferWidth = 730;
             _graphics.PreferredBackBufferHeight = 600;
 
@@ -73,7 +74,7 @@ namespace Cooler_King
 
             //Sets both frustration and score to zero
             frustration = 0;
-            score = 0 ;
+            score = 0;
             
             base.Initialize();
         }
@@ -106,6 +107,7 @@ namespace Cooler_King
             //loads the brick hit sound effect
             brickHit = Content.Load<SoundEffect>("correct");
 
+            //Begins the start game function
             StartGame();
         }
 
@@ -143,33 +145,35 @@ namespace Cooler_King
                         tint = Color.Purple;
                         break;
                 }
+
                 //loops through brick in the brickWide var
                 for (int x = 0; x < bricksWide; x++)
                 {
+                    //sets randint toa random number between 0 to 3
                     int randint = RNG.Next(0, 4);
 
                     
                     if (randint == 0)
                     {
-                        //sets each brick with the brick image, a collition rectangle and a color
+                        //sets each normal brick with the brick image, a collition rectangle and a color
                         bricks[x, y] = new Brick(brickImage, new Rectangle(x * brickImage.Width, y * brickImage.Height, brickImage.Width, brickImage.Height), tint, 1);
                     }
                     else if (randint == 1)
                     {
                         
-                        //sets each brick with the brick image, a collition rectangle and a color
+                        //sets each strong brick with the brick image, a collition rectangle and a color
                         bricks[x, y] = new Brick(brickImage2, new Rectangle(x * brickImage2.Width, y * brickImage2.Height, brickImage2.Width, brickImage2.Height), tint, 2);
                         
                     }
                     else if (randint == 2)
                     {
-                        //sets each brick with the brick image, a collition rectangle and a color
+                        //sets each glass brick with the brick image, a collition rectangle and a color
                         bricks[x, y] = new Brick(brickImage3, new Rectangle(x * brickImage3.Width, y * brickImage3.Height, brickImage3.Width, brickImage3.Height), tint, 1);
                         bricks[x, y].isGlass = true;
                     }
                     else
                     {
-                        //sets each brick with the brick image, a collition rectangle and a color
+                        //sets each bomb brick with the brick image, a collition rectangle and a color
                         bricks[x, y] = new Brick(brickImage4, new Rectangle(x * brickImage4.Width, y * brickImage4.Height, brickImage4.Width, brickImage4.Height), tint, 1);
                         bricks[x, y].isBomb = true;
                     }
@@ -225,6 +229,7 @@ namespace Cooler_King
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            //sets the currKeyb var as the function keyboard.getstate
             currKeyb = Keyboard.GetState();
 
             //gives the conditions for if the state needs to me changed
@@ -248,19 +253,25 @@ namespace Cooler_King
             {
                 gameOver = true;
             }
+
             void PlayingUpdate(KeyboardState cKB, KeyboardState oKB)
             {
                 //sets the alive bool as true
                 ball.alive = true;
+
                 //add frustration every second that the game does on
                 frustration += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                //if game over is true or space is hit
                 if (gameOver == true || cKB.IsKeyDown(Keys.Space) && oKB.IsKeyUp(Keys.Space))
                 {
+                    //change the current state to game over
                     CurrentGameState = GameState.GameOver;
                 }
                 
             }
 
+            //An update function that gets the keyboardstate and inputs it as the current and old keyboard var
             void GameOverUpdate(KeyboardState cKB, KeyboardState oKB)
             {
                 //sets the alive bool as false
@@ -287,6 +298,7 @@ namespace Cooler_King
 
             //updates both the paddle and ball class and gives them screensizes
             paddle.UpdateMe(screenSize.Width);
+
             //checks if the ball if 'alive' and if it is then it lets the game update the ball class
             if(ball.alive)
                 ball.UpdateMe(screenSize.Height, screenSize.Width, wallHit, brickHit);
@@ -297,7 +309,7 @@ namespace Cooler_King
                 frustration++;
             }
 
-
+            //if the ball hits the paddle
             if (ball.Rect.Intersects(paddle.Rect))
             {
                 // get the overlap rectangle
@@ -322,6 +334,11 @@ namespace Cooler_King
 
             }
 
+            bool killbrick = false;
+
+            if (currKeyb.IsKeyDown(Keys.K))
+                killbrick = true;
+
             //loops through each brick
             for (int i = 0; i < bricks.GetLength(0); i++)
             {
@@ -335,22 +352,29 @@ namespace Cooler_King
                         score++;
                     }
 
-                    if (ball.Rect.Intersects(brick.Rect) && (brick.alive == true))
+                    if ((ball.Rect.Intersects(brick.Rect) || killbrick) && brick.alive == true)
                     {
+                        killbrick = false;
                         // get the overlap rectangle
                         var overlap = Rectangle.Intersect(ball.Rect, brick.Rect);
+                        //takes away one from the bricks hit points
                         brick.hitpoints--;
+                        //takes away one frustration
                         frustration--;
 
+                        //checks if the brick is a bomb
                         if (brick.isBomb)
                         {
+                            //Kills the other brick beside it
                             int x = i + 1;
                             if (x < bricks.GetLength(0))
                                 bricks[x, j].hitpoints--;
                         }
 
+                        //checks if the brick is a bomb
                         if (brick.isBomb)
                         {
+                            //Kills the other brick beside it
                             int x = i - 1;
                             if (x > 0)
                                 bricks[x, j].hitpoints--;
@@ -359,31 +383,30 @@ namespace Cooler_King
                         // if the overlap rect width > height
                         if (overlap.Width > overlap.Height)
                         {
+                            //checks if the brick is not a glass brick
                             if (!brick.isGlass)
                             {
                                 // flip the y velocity
                                 ball.BounceY();
                             }
-                            
-                            
-                            
+                            //plays the brickhit sound effect
                             brickHit.Play();
 
                         }
                         else
                         {
+                            //checks if the brick is not a glass brick
                             if (!brick.isGlass)
                             {
                                 // flip the x velocity
                                 ball.BounceX();
                             }
+                            //plays the brickhit sound effect
                             brickHit.Play();
 
                         }
                         // moves the ball back one pixel so it doesn't get stuck in a brick
                         ball.MoveBack();
-
-
                     }
                 }
             }
@@ -394,12 +417,15 @@ namespace Cooler_King
             if (level == 0 && score >= 50)
             {
                 level++;
+                //speeds up the ball
                 ball.Speed = new Vector2(4, 4);
                 ProceedLevel();
+                score -= 25;
             }
             if (level == 1 && score >= 75)
             {
                 level++;
+                //speeds up the ball
                 ball.Speed = new Vector2(5, 5);
                 ProceedLevel();
             }

@@ -12,11 +12,7 @@ namespace Cooler_King
     {
         Vector2 pos, oldPos;
         public Rectangle Rect;
-
         KeyboardState kb;
-
-        
-
         Texture2D tex;
 
         //Constructer
@@ -66,7 +62,6 @@ namespace Cooler_King
         public void DrawMe(SpriteBatch sb)
         {
             //draws the paddle at the predefined location with the texture
-            
             sb.Draw(tex, Rect, Color.White);
         }
 

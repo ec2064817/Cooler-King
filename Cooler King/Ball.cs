@@ -24,7 +24,6 @@ namespace Cooler_King
 
         int size = 10;
 
-
         //Constructer
         public Ball(Texture2D tex, Vector2 posi)
         {
@@ -105,8 +104,9 @@ namespace Cooler_King
 
         public void DrawMe(SpriteBatch sb)
         {
-            //draws the ball at the predefined location with the texture
+            //if the ball is not in the attract or game over screen
             if (alive)
+                //draws the ball
                 sb.Draw(tex, Rect, Color.White);
         }
     }

@@ -12,7 +12,6 @@ namespace Cooler_King
     {
         Rectangle location;
         Color tint;
-        //maybe kill later
         public bool alive;
         public int hitpoints;
         Texture2D tex;
@@ -44,13 +43,15 @@ namespace Cooler_King
 
             //sets rect position and texture
             rect = new Rectangle(0, 0, tex.Width, tex.Height);
+            //sets hitpoints as hp
             hitpoints = hp;
         }
 
         public void DrawMe(SpriteBatch sb)
         {
-            //if the brick has not been hit by the ball it draws the brick
+            //if the brick has not been killed
             if (alive)
+                //draw the brick
                 sb.Draw(tex, location, tint);
         }
     }
