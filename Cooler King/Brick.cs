@@ -18,7 +18,8 @@ namespace Cooler_King
         public Rectangle rect;
         public bool isGlass;
         public bool isBomb;
-
+        public bool isStrong;
+        
         public Rectangle Rect
         {
             get

@@ -13,7 +13,8 @@ namespace Cooler_King
     {
         Attract,
         Playing,
-        GameOver
+        GameOver,
+        Win
     }
 
     public class Game1 : Game
@@ -32,6 +33,7 @@ namespace Cooler_King
         SoundEffect brickHit;
 
         bool gameOver;
+        bool gameWin;
 
         public readonly static Random RNG = new Random();
 
@@ -163,7 +165,7 @@ namespace Cooler_King
                         
                         //sets each strong brick with the brick image, a collition rectangle and a color
                         bricks[x, y] = new Brick(brickImage2, new Rectangle(x * brickImage2.Width, y * brickImage2.Height, brickImage2.Width, brickImage2.Height), tint, 2);
-                        
+                        bricks[x, y].isStrong = true;
                     }
                     else if (randint == 2)
                     {
@@ -201,21 +203,46 @@ namespace Cooler_King
                     {
                         //sets level two
                         case 1:
-                            
-                            bricks[x, y].alive = true;
+
                             if (x % 2 == 0)
                             {
                                 bricks[x, y].alive = false;
-                                
                             }
+                            else
+                            {
+                                bricks[x, y].alive = true;
+
+                                if (bricks[x, y].isStrong == true)
+                                {
+                                    bricks[x, y].hitpoints = 2;
+                                }
+                                else
+                                {
+                                    bricks[x, y].hitpoints = 1;
+                                }
+                            }
+
                             break;
 
                         //sets level three
                         case 2:
-                            bricks[x, y].alive = false;
+                            
                             if (x > 0 && y > 0 && x < bricksWide - 1 && y < bricksHigh - 1)
                             {
                                 bricks[x, y].alive = true;
+                                if (bricks[x, y].isStrong == true)
+                                {
+                                    bricks[x, y].hitpoints = 2;
+                                }
+                                else
+                                {
+                                    bricks[x, y].hitpoints = 1;
+                                }
+                                
+                            }
+                            else
+                            {
+                                bricks[x, y].alive = false;
 
                             }
                             break;
@@ -254,6 +281,11 @@ namespace Cooler_King
                 gameOver = true;
             }
 
+            if (score >= 99)
+            {
+                gameWin = true;
+            }
+
             void PlayingUpdate(KeyboardState cKB, KeyboardState oKB)
             {
                 //sets the alive bool as true
@@ -268,11 +300,25 @@ namespace Cooler_King
                     //change the current state to game over
                     CurrentGameState = GameState.GameOver;
                 }
-                
+
+                if (gameWin == true || cKB.IsKeyDown(Keys.B) && oKB.IsKeyUp(Keys.B))
+                {
+                    //change the current state to game over
+                    CurrentGameState = GameState.Win;
+                }
+
             }
 
             //An update function that gets the keyboardstate and inputs it as the current and old keyboard var
             void GameOverUpdate(KeyboardState cKB, KeyboardState oKB)
+            {
+                //sets the alive bool as false
+                ball.alive = false;
+
+            }
+
+            //An update function that gets the keyboardstate and inputs it as the current and old keyboard var
+            void WinUpdate(KeyboardState cKB, KeyboardState oKB)
             {
                 //sets the alive bool as false
                 ball.alive = false;
@@ -290,6 +336,9 @@ namespace Cooler_King
                     break;
                 case GameState.GameOver:
                     GameOverUpdate(currKeyb, oldKeyb);
+                    break;
+                case GameState.Win:
+                    WinUpdate(currKeyb, oldKeyb);
                     break;
             }
 
@@ -334,12 +383,13 @@ namespace Cooler_King
 
             }
 
+            //debug, kills bricks when k is clicked
             bool killbrick = false;
 
             if (currKeyb.IsKeyDown(Keys.K))
                 killbrick = true;
 
-            //loops through each brick
+            //loops through each brick and checks if it needs to kill one
             for (int i = 0; i < bricks.GetLength(0); i++)
             {
                 for (int j = 0; j < bricks.GetLength(1); j++)
@@ -365,7 +415,7 @@ namespace Cooler_King
                         //checks if the brick is a bomb
                         if (brick.isBomb)
                         {
-                            //Kills the other brick beside it
+                            //Kills the brick beside it
                             int x = i + 1;
                             if (x < bricks.GetLength(0))
                                 bricks[x, j].hitpoints--;
@@ -380,7 +430,7 @@ namespace Cooler_King
                                 bricks[x, j].hitpoints--;
                         }
 
-                        // if the overlap rect width > height
+                        //if the overlap rect width > height
                         if (overlap.Width > overlap.Height)
                         {
                             //checks if the brick is not a glass brick
@@ -420,7 +470,8 @@ namespace Cooler_King
                 //speeds up the ball
                 ball.Speed = new Vector2(4, 4);
                 ProceedLevel();
-                score -= 25;
+                //sets score to 50
+                score = 50;
             }
             if (level == 1 && score >= 75)
             {
@@ -428,6 +479,8 @@ namespace Cooler_King
                 //speeds up the ball
                 ball.Speed = new Vector2(5, 5);
                 ProceedLevel();
+                //sets score to 75
+                score = 75;
             }
             
 
@@ -484,6 +537,17 @@ namespace Cooler_King
                 _spriteBatch.End();
             }
 
+            void WinDraw()
+            {
+                GraphicsDevice.Clear(Color.Blue);
+                _spriteBatch.Begin();
+
+                //draws the font with the given text and the position
+                _spriteBatch.DrawString(ScoreFont, "YOU WON! Your score was: " + score, new Vector2(0, 560), Color.White);
+
+                _spriteBatch.End();
+            }
+
             switch (CurrentGameState)
             {
                 case GameState.Attract:
@@ -494,6 +558,9 @@ namespace Cooler_King
                     break;
                 case GameState.GameOver:
                     GameOverDraw();
+                    break;
+                case GameState.Win:
+                    WinDraw();
                     break;
             }
 
